@@ -1,9 +1,13 @@
+import logging
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.core import state
 from app.core.config import settings
 from app.db.models import VideoRecord
 from app.schemas.hook_schema import OnPublishItem, OnStreamChangedItem, OnRecordMp4Item
+
+
+logger = logging.getLogger(__name__)
 
 class DroneService:
     def register_drone(self, drone_id: str, stream_id: str):
@@ -18,7 +22,7 @@ class DroneService:
         )
         state.DRONE_SESSIONS[stream_id] = session
         state.DRONE_ID_MAP[drone_id] = stream_id
-        print(f"Registered drone: {drone_id} -> {stream_id}")
+        logger.info("Registered drone", extra={"drone_id": drone_id, "stream_id": stream_id})
 
     def handle_publish(self, data: OnPublishItem) -> bool:
         """
@@ -33,11 +37,14 @@ class DroneService:
             session.vhost = data.vhost
             session.params = data.params
             session.client_ip = data.ip
-            print(f"Stream Online: {stream_id}")
+            logger.info(
+                "Stream online",
+                extra={"stream_id": stream_id, "app": data.app, "vhost": data.vhost},
+            )
             return True
         else:
             # Optionally auto-register/allow unknown streams or reject
-            print(f"Unknown stream publishing: {stream_id}")
+            logger.warning("Unknown stream publishing", extra={"stream_id": stream_id})
             # We can allow it but treat as anonymous or reject. 
             # Returning True allows the stream.
             return True
@@ -51,7 +58,7 @@ class DroneService:
             # Stream disconnected
             if stream_id in state.DRONE_SESSIONS:
                 state.DRONE_SESSIONS[stream_id].status = "Offline"
-                print(f"Stream Offline: {stream_id}")
+                logger.info("Stream offline", extra={"stream_id": stream_id})
 
     def handle_record_mp4(self, db: Session, data: OnRecordMp4Item):
         """
@@ -73,7 +80,10 @@ class DroneService:
         db.add(record)
         db.commit()
         db.refresh(record)
-        print(f"Saved recording for {stream_id}: {data.file_path}")
+        logger.info(
+            "Recording saved",
+            extra={"stream_id": stream_id, "file_path": data.file_path, "record_id": record.record_id},
+        )
 
     def get_online_streams(self) -> List[state.DroneSession]:
         return [

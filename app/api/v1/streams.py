@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -10,10 +11,12 @@ from app.schemas.stream_schema import (
 from app.services.drone_service import drone_service
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 @router.post("/stream/register", response_model=DroneRegisterResponse)
 async def register_drone(item: DroneRegisterRequest):
     drone_service.register_drone(item.drone_id, item.stream_id)
+    logger.info("Drone registered", extra={"drone_id": item.drone_id, "stream_id": item.stream_id})
     return DroneRegisterResponse(success=True, message="Registered successfully")
 
 @router.get("/stream/play-url")
@@ -23,11 +26,13 @@ async def get_play_url(id: str, type: str = "live"):
     url = drone_service.get_play_url(id)
     if not url:
         raise HTTPException(status_code=404, detail="Stream offline or not found")
+    logger.debug("Play URL requested", extra={"stream_id": id, "type": type})
     return {"url": url}
 
 @router.get("/streams/online", response_model=List[StreamInfo])
 async def get_online_streams():
     streams = drone_service.get_online_streams()
+    logger.debug("Online streams fetched", extra={"count": len(streams)})
     # Convert internal DroneSession to Schema StreamInfo
     return [
         StreamInfo(
@@ -51,4 +56,5 @@ async def get_recordings(
     
     # Order by time desc
     records = query.order_by(VideoRecord.record_id.desc()).all()
+    logger.debug("Recordings fetched", extra={"count": len(records), "drone_id": drone_id})
     return records

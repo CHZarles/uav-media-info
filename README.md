@@ -11,12 +11,12 @@
 
 1.  **终端 1 (启动后端)**:
     ```bash
-    python server.py
+    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     ```
 
 2.  **终端 2 (启动 Mock ZLM)**:
     ```bash
-    python mock_zlm.py
+    python mock_zlmedia.py
     ```
 
 3.  **终端 3 (执行 CLI 模拟)**:
