@@ -53,3 +53,10 @@ sudo -u postgres psql -f create_user.sql
 # -U uav_user : 指定使用刚才创建的业务用户
 PGPASSWORD='change_me' psql -h localhost -U uav_user -d uav -f init_db.sql
 ```
+
+
+## V0
+- [] 设备注册与推流上线流程
+- [] 前端获取直播地址与观看流程
+- [] 断流与录像归档流程
+- [] 历史录像回放流程
