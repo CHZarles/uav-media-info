@@ -38,3 +38,18 @@
 
     *   **查看录像列表 (浏览器)**:
         访问 `http://localhost:8000/api/recordings`，你会看到刚才生成的模拟录像数据。
+
+
+## 初始化数据库
+
+```sql
+# -u postgres: 告诉 sudo 以系统用户 "postgres" 的身份运行后面的命令
+# 这样系统用户就是 postgres，数据库用户也是 postgres，Peer 认证就会通过
+sudo -u postgres psql -f create_user.sql
+
+
+# PGPASSWORD=... : 临时指定密码环境变量，避免交互式输入
+# -h localhost   : 强制走 TCP/IP 网络协议，触发密码认证（而不是 Peer）
+# -U uav_user : 指定使用刚才创建的业务用户
+PGPASSWORD='change_me' psql -h localhost -U uav_user -d uav -f init_db.sql
+```
