@@ -13,7 +13,7 @@ BACKEND_HOOK_URL = "http://localhost:8000"  # 假设你的业务后端运行在 
 # ZLM 的一些固定配置模拟
 ZLM_SECRET = "035c73f7-bb6b-4889-a715-d9eb2d1925cc"
 MEDIA_SERVER_ID = "mock_zlm_server_01"
-HTTP_PORT = 46545 # 本 Mock 服务运行端口
+HTTP_PORT = 9000 # 本 Mock 服务运行端口
 
 app = FastAPI(title="Mock ZLMediaKit Service")
 
