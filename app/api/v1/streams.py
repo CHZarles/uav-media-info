@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -19,15 +19,18 @@ async def register_drone(item: DroneRegisterRequest):
     logger.info("Drone registered", extra={"drone_id": item.drone_id, "stream_id": item.stream_id})
     return DroneRegisterResponse(success=True, message="Registered successfully")
 
-@router.get("/stream/play-url")
-async def get_play_url(id: str, type: str = "live"):
-    # TODO: 根据不同的协议类型返回不同的URL
-    # id is stream_id
-    url = drone_service.get_play_url(id)
-    if not url:
-        raise HTTPException(status_code=404, detail="Stream offline or not found")
-    logger.debug("Play URL requested", extra={"stream_id": id, "type": type})
-    return {"url": url}
+# NOTE: The `/api/stream/play-url` endpoint is intentionally disabled for now.
+# Clients can use the `play_url` field returned by `GET /api/streams/online`.
+#
+# @router.get("/stream/play-url")
+# async def get_play_url(id: str, type: str = "live"):
+#     # TODO: 根据不同的协议类型返回不同的URL
+#     # id is stream_id
+#     url = drone_service.get_play_url(id)
+#     if not url:
+#         raise HTTPException(status_code=404, detail="Stream offline or not found")
+#     logger.debug("Play URL requested", extra={"stream_id": id, "type": type})
+#     return {"url": url}
 
 @router.get("/streams/online", response_model=List[StreamInfo])
 async def get_online_streams():

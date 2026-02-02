@@ -40,15 +40,15 @@ def _record_payload(stream_id: str) -> dict:
     }
 
 
-def test_register_then_play_url_404_until_published(client) -> None:
+def test_register_then_online_list_empty_until_published(client) -> None:
     stream_id = "stream_001"
     drone_id = "drone_001"
 
     r = client.post("/api/stream/register", json={"drone_id": drone_id, "stream_id": stream_id})
     assert r.status_code == 200
 
-    r = client.get("/api/stream/play-url", params={"id": stream_id})
-    assert r.status_code == 404
+    streams = client.get("/api/streams/online").json()
+    assert streams == []
 
 
 def test_publish_makes_stream_online_and_playable(client) -> None:
@@ -70,10 +70,6 @@ def test_publish_makes_stream_online_and_playable(client) -> None:
     assert streams[0]["app"] == "live"
     assert streams[0]["play_url"] == f"http://localhost:9000/live/{stream_id}.flv"
 
-    r = client.get("/api/stream/play-url", params={"id": stream_id})
-    assert r.status_code == 200
-    assert r.json()["url"] == f"http://localhost:9000/live/{stream_id}.flv"
-
 
 def test_stream_changed_offline_removes_from_online_list(client) -> None:
     stream_id = "stream_001"
@@ -89,9 +85,6 @@ def test_stream_changed_offline_removes_from_online_list(client) -> None:
     streams = client.get("/api/streams/online").json()
     assert streams == []
 
-    r = client.get("/api/stream/play-url", params={"id": stream_id})
-    assert r.status_code == 404
-
 
 def test_publish_unknown_stream_allowed_but_not_listed(client) -> None:
     r = client.post("/hook/on_publish", json=_publish_payload("unknown_stream"))
@@ -101,8 +94,11 @@ def test_publish_unknown_stream_allowed_but_not_listed(client) -> None:
     streams = client.get("/api/streams/online").json()
     assert streams == []
 
-    r = client.get("/api/stream/play-url", params={"id": "unknown_stream"})
+
+def test_play_url_endpoint_disabled(client) -> None:
+    r = client.get("/api/stream/play-url", params={"id": "stream_001"})
     assert r.status_code == 404
+    assert r.json()["detail"] == "Not Found"
 
 
 def test_record_saved_even_if_stream_is_offline_after_disconnect(client) -> None:

@@ -89,7 +89,6 @@ python mock_drone_cli.py --action stop --stream-id s_001
 
 验证接口：
 - 在线列表：`GET http://localhost:8000/api/streams/online`
-- 播放地址：`GET http://localhost:8000/api/stream/play-url?id=s_001&type=live`
 - 录像列表：`GET http://localhost:8000/api/recordings`
 
 ---
@@ -103,8 +102,7 @@ python mock_drone_cli.py --action stop --stream-id s_001
 
 ### 业务 API（前端/网关 -> 后端）
 - `POST /api/stream/register`：设备注册（绑定 `drone_id` 与 `stream_id`）
-- `GET /api/streams/online`：在线流列表（来自进程内存）
-- `GET /api/stream/play-url?id=...&type=live`：拼接播放地址（当前返回 `.flv`）
+- `GET /api/streams/online`：在线流列表（来自进程内存，包含 `play_url` 字段）
 - `GET /api/recordings?drone_id=...`：录像列表（PostgreSQL）
 
 ---
