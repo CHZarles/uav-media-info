@@ -1,22 +1,3 @@
-from fastapi.testclient import TestClient
-
-from app.db.base import SessionLocal
-from app.db.models import VideoRecord
-from app.main import app
-
-
-client = TestClient(app)
-
-
-def _clear_records() -> None:
-    db = SessionLocal()
-    try:
-        db.query(VideoRecord).delete()
-        db.commit()
-    finally:
-        db.close()
-
-
 def _record_payload(stream_id: str) -> dict:
     return {
         "mediaServerId": "test_zlm",
@@ -32,9 +13,7 @@ def _record_payload(stream_id: str) -> dict:
     }
 
 
-def test_record_hook_ignored_for_unregistered_stream() -> None:
-    _clear_records()
-
+def test_record_hook_ignored_for_unregistered_stream(client) -> None:
     r = client.post("/hook/on_record_mp4", json=_record_payload("unregistered_stream"))
     assert r.status_code == 200
 
@@ -42,9 +21,7 @@ def test_record_hook_ignored_for_unregistered_stream() -> None:
     assert recordings == []
 
 
-def test_record_hook_saved_for_registered_stream() -> None:
-    _clear_records()
-
+def test_record_hook_saved_for_registered_stream(client) -> None:
     stream_id = "stream_001"
     drone_id = "drone_001"
     r = client.post("/api/stream/register", json={"drone_id": drone_id, "stream_id": stream_id})
