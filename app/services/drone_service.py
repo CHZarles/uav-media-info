@@ -65,11 +65,15 @@ class DroneService:
         Save recording record to DB
         """
         stream_id = data.stream
-        drone_id = "unknown"
-        
-        # Try to find drone_id from memory (if session still exists)
-        if stream_id in state.DRONE_SESSIONS:
-            drone_id = state.DRONE_SESSIONS[stream_id].drone_id
+        session = state.DRONE_SESSIONS.get(stream_id)
+        if session is None:
+            logger.warning(
+                "Recording ignored: stream not registered",
+                extra={"stream_id": stream_id, "file_path": data.file_path},
+            )
+            return
+
+        drone_id = session.drone_id
         
         # Create record
         record = VideoRecord(
