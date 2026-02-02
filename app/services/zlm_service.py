@@ -1,5 +1,5 @@
 import requests
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from app.core.config import settings
 
 class ZLMService:

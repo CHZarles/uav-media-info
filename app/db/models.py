@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, BigInteger, DateTime, func
+from sqlalchemy import Column, Integer, String, DateTime, func
 from .base import Base
 
 class VideoRecord(Base):
