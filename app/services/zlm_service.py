@@ -1,5 +1,5 @@
 import requests
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from app.core.config import settings
 
 class ZLMService:
@@ -44,4 +44,9 @@ class ZLMService:
             print(f"Error calling ZLM close_stream: {e}")
             return False
 
-zlm_service = ZLMService()
+# NOTE:
+# This project currently doesn't use ZLM HTTP API directly.
+# Keep the service wrapper for future integration, but avoid creating
+# a module-level singleton (and its implicit config binding) at import time.
+#
+# zlm_service = ZLMService()

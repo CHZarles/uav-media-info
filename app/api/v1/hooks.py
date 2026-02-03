@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.schemas.hook_schema import HookResponse, OnPublishItem, OnStreamChangedItem, OnRecordMp4Item
 from app.services.drone_service import drone_service

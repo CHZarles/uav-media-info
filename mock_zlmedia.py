@@ -1,8 +1,7 @@
 import time
-import uuid
 import random
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 import requests
@@ -89,7 +88,8 @@ async def mock_stop_stream(data: StreamControl, background_tasks: BackgroundTask
 
     stream_info = active_streams.pop(data.stream_id)
     duration = int(time.time() - stream_info['start_time'])
-    if duration <= 0: duration = 1
+    if duration <= 0:
+        duration = 1
 
     # --- 动作 1: 发送流注销事件 ---
     def send_hooks():

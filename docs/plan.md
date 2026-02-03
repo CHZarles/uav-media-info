@@ -19,7 +19,6 @@
 | 路径 | 方法 | 用途 | 备注 |
 | --- | --- | --- | --- |
 | `/api/stream/register` | POST | 设备注册 | 接收 Drone ID，建立 `stream_id` 与设备的映射关系 (存 Redis， v0 先用进程内存) |
-| `/api/stream/play-url` | GET | 获取播放地址 | 拼接 ZLM 地址，**建议增加 `type` 参数 (live/replay)** |
 | `/api/streams/online` | GET | 在线列表 | **优先查 Redis 缓存(v0 先用进程内存)**，兜底查 ZLM API (减少对 ZLM 的 HTTP 请求压力) |
 | `/api/recordings` | GET | 录像列表 | 查数据库 |
 
@@ -141,20 +140,11 @@ sequenceDiagram
         ZLM-->>Process: 返回实际流列表
         Process->>Process: 【内存同步】重建内存状态
     end
-    Process-->>Operation: 返回在线设备列表 (含stream_id)
+    Process-->>Operation: 返回在线设备列表 (含 play_url)
     deactivate Process
     Operation-->>Frontend: JSON List
-
-    Note over Frontend, ZLM: 场景：请求播放特定流
-    Frontend->>Operation: GET /api/stream/play-url?id=xxx&type=live
-    Operation->>Process: 获取流地址
-    activate Process
-    Process->>Process: 【内存读取】<br/>1. 检查 stream_id 是否在线<br/>2. 拼接 ZLM 的 HTTP-FLV/WebRTC 地址
-    Process-->>Operation: 返回完整播放 URL
-    deactivate Process
-    Operation-->>Frontend: 播放地址 (URL)
     
-    Frontend->>ZLM: WebRTC/FLV 请求播放
+    Frontend->>ZLM: 使用 play_url 请求播放（WebRTC/FLV）
     ZLM-->>Frontend: 视频流数据
 ```
 
